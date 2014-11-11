@@ -33,6 +33,14 @@ public class DB {
 		Statement sta = conn.createStatement();
 		return sta.execute(sql);
 	}
+	
+	public void updatePublicationYear(int year, int trackID, String URL) throws SQLException{
+		PreparedStatement sta = conn.prepareStatement(SQLQuery.UPDATE_PUB_YEAR);
+		sta.setInt(1, year);
+		sta.setInt(2, trackID);
+		sta.setString(3, URL);
+		sta.executeUpdate();
+	}
 	public int insertIntoPublications(int trackID,String title,String paperAbstract,String journal,String URL,String contentType,String topicTags,String publisher, java.util.Date receivedDate,java.util.Date revisionDate, int sitePage,int year) throws SQLException {
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.INSERT_INTO_PUBLICATIONS, Statement.RETURN_GENERATED_KEYS);
 		sta.setInt(1, trackID);

@@ -31,7 +31,7 @@ public class GenderAnnotater {
 	
 	public static void main(String[] args) {
 		try {
-			sendGet();
+			sendGet2();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -148,7 +148,7 @@ public class GenderAnnotater {
 	static void sendGet2() throws IOException{
 		Document doc = null;
 		System.out.println(Jsoup
-				.connect("http://api.genderize.io/?name=peter").ignoreContentType(true).execute().body());
+				.connect("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9208&pageA=100&contentType=0").ignoreContentType(true).execute().body());
 //				.timeout(0)
 //				.userAgent(
 //						"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36")

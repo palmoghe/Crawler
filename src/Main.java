@@ -32,7 +32,7 @@ public class Main {
 		for(Track track:Track.values()){
 			currentTrack = track;
 			System.out.println("Track: "+currentTrack.title + " Cat: "+currentTrack.categoryID);
-			for(page=1;page<=65;page++){
+			for(page=1;page<=currentTrack.lastPage;page++){
 				System.out.println("PAGE: "+page);
 				processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID="+currentTrack.categoryID+"&pageA="+page+"&contentType=0",null);
 			}
@@ -80,14 +80,14 @@ public class Main {
 				//									}
 				//								}
 				Elements elementsByClass = doc.getElementsByClass("aList");
-				System.out.println("Eles"+elementsByClass.size());	
 				for(Element ele:elementsByClass){
 					Elements hrefs = ele.select("a[href]");
 					for(Element hr: hrefs){
-						if (isURLForPublication(hr.attr("abs:href"))) {
+						String checkURL = hr.attr("abs:href");
+						if (isURLForAPublication(checkURL)) {
 							Publication pub = new Publication();	
 							pub.setYear(Integer.parseInt(ele.getElementsByClass("date").get(0).text()));
-							processPage(hr.attr("abs:href"),pub);
+							processPage(checkURL,pub);
 						}
 					}
 				}
@@ -97,7 +97,7 @@ public class Main {
 				System.out.println(e);
 				e.printStackTrace();
 			}
-		} else if (isURLForPublication(URL)) {
+		} else if (isURLForAPublication(URL)) {
 			// check if the given URL is already in database
 			String sql = "select * from Records where URL = '" + URL + "'" + " and trackID = "+currentTrack.trackID;
 			try {
@@ -116,7 +116,9 @@ public class Main {
 					System.out.println(publication);
 				}else{
 					// Already present, only update the publication year
-
+					// FIX for storing the year of a publication ( new field in already populated DB )
+					System.out.println("Updating:" + URL + " Year:" + publication.getYear());
+					db.updatePublicationYear(publication.getYear(), currentTrack.trackID, URL);
 				}
 			} catch (Exception e) {
 				// TODO : Log file
@@ -129,7 +131,7 @@ public class Main {
 		}
 	}
 
-	public static boolean isURLForPublication(String URL){
+	public static boolean isURLForAPublication(String URL){
 		return URL.matches("http://asmedigitalcollection\\.asme\\.org/article\\.aspx\\?articleid=[0-9]+\\&journalid=[0-9]+")
 				|| URL.matches("http://asmedigitalcollection\\.asme\\.org/proceeding\\.aspx\\?articleid=[0-9]+");
 	}
