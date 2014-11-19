@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
  
 public class DB {
  
@@ -34,11 +36,10 @@ public class DB {
 		return sta.execute(sql);
 	}
 	
-	public void updatePublicationYear(int year, int trackID, String URL) throws SQLException{
+	public void updatePublicationYear(int year,String URL) throws SQLException{
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.UPDATE_PUB_YEAR);
 		sta.setInt(1, year);
-		sta.setInt(2, trackID);
-		sta.setString(3, URL);
+		sta.setString(2, URL);
 		sta.executeUpdate();
 	}
 	public int insertIntoPublications(int trackID,String title,String paperAbstract,String journal,String URL,String contentType,String topicTags,String publisher, java.util.Date receivedDate,java.util.Date revisionDate, int sitePage,int year) throws SQLException {
@@ -64,6 +65,7 @@ public class DB {
 			sta.setDate(10, null);
 		}
 		sta.setInt(11, sitePage);
+		sta.setInt(12, year);
 		sta.executeUpdate();
 		ResultSet generatedKeys = sta.getGeneratedKeys();
 		generatedKeys.next();
@@ -157,6 +159,17 @@ public class DB {
 		}
 	}
 
+	public List<String> getAuthorNames() throws SQLException{
+		
+		PreparedStatement sta = conn.prepareStatement(SQLQuery.GET_AUTHOR_NAMES);
+		ResultSet rs = sta.executeQuery();
+		List<String> result= new ArrayList<>();
+		while(rs.next()){
+			result.add(rs.getString(1));
+		}
+		return result;
+	}
+	
 	public int insertIntoPaperTracks(Integer paperID, int trackID) throws SQLException {
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.INSERT_INTO_PAPER_TRACKS);
 		sta.setInt(1, paperID);

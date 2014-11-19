@@ -30,44 +30,22 @@ public class Main {
 		//		 db.runSql2("ALTER TABLE authorinfo AUTO_INCREMENT=1");
 
 		for(Track track:Track.values()){
+			if(track.trackID<12){
+				continue;
+			}
 			currentTrack = track;
 			System.out.println("Track: "+currentTrack.title + " Cat: "+currentTrack.categoryID);
 			for(page=1;page<=currentTrack.lastPage;page++){
+				if(track.trackID==12 && page<245){
+					continue;
+				}
 				System.out.println("PAGE: "+page);
-				processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID="+currentTrack.categoryID+"&pageA="+page+"&contentType=0",null);
+				processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID="+currentTrack.categoryID+"&pageA="+page+"&contentType=0");
 			}
 		}
-		//		for (i = 2; i <= 100; i++) {
-		//			System.out.println("We are on: " + i + "**************************");
-		// Aerospace 1
-		//			processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9208&pageA="+ i + "&contentType=0");
-		// Applied Mechanics 2
-		//			processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9210&pageA="+i+"&contentType=0");
-		// Automotive systems 3
-		// processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9211&pageA="+i+"&contentType=0");
-		// Biomech 4
-		// processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9212&pageA="+i+"&contentType=0");
-		// Buildings 5
-		// processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9217&pageA="+i+"&contentType=0");
-		// CAD 6
-		// processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9214&pageA="+i+"&contentType=0");
-		//  Comp. Info Tech 7
-		//	processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9216&pageA="+i+"&contentType=0");
-		// Power and fuels 8
-		//				processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9234&pageA="+i+"&contentType=0");
-		// Design 10 - nothing processed
-		//			processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9218&pageA="+i+"&contentType=0");
-		// Dynamic systems and control 11
-		//				processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9219&pageA="+i+"&contentType=0");	
-		// Energy 12
-		//			processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9221&pageA="+i+"&contentType=0");	
-		// Environment 13
-		//			processPage("http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9222&pageA="+i+"&contentType=0");
-
-		//		}
 	}
 
-	public static void processPage(String URL, Publication publication) throws SQLException, IOException {
+	public static void processPage(String URL) throws SQLException, IOException {
 
 		if (URL.matches("http://asmedigitalcollection\\.asme\\.org/collection\\.aspx\\?categoryID="+currentTrack.categoryID+"\\&pageA=[0-9]+\\&contentType=0")) {
 			Document doc = null;
@@ -83,11 +61,39 @@ public class Main {
 				for(Element ele:elementsByClass){
 					Elements hrefs = ele.select("a[href]");
 					for(Element hr: hrefs){
-						String checkURL = hr.attr("abs:href");
-						if (isURLForAPublication(checkURL)) {
+						String pubURL = hr.attr("abs:href");
+						if (isURLForAPublication(pubURL)) {
 							Publication pub = new Publication();	
 							pub.setYear(Integer.parseInt(ele.getElementsByClass("date").get(0).text()));
-							processPage(checkURL,pub);
+							// check if the given URL is already in database
+							String sql = "select * from Records where URL = '" + pubURL + "'" + " and trackID = "+currentTrack.trackID;
+							try {
+								ResultSet rs = db.runSql(sql);
+								if (!rs.next()) {
+									// store the URL to database to avoid parsing again
+									Document document = Jsoup
+											.connect(pubURL)
+											.timeout(0)
+											.userAgent(
+													"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36")
+													.get();
+									extractPublicationInformation(pubURL, document,pub);
+									savePublication(pub,pubURL);
+									System.out.println(pub);
+								}else{
+									// Already present, only update the publication year
+									// FIX for storing the year of a publication ( new field in already populated DB )
+									System.out.println("Updating:" + pubURL + " Year:" + pub.getYear());
+									db.updatePublicationYear(pub.getYear(), pubURL);
+								}
+							} catch (Exception e) {
+								// TODO : Log file
+								System.out.println(e);
+								e.printStackTrace();
+							}
+						}else{
+//							System.out.println("Skipping************");
+//							System.out.println(URL);
 						}
 					}
 				}
@@ -97,38 +103,7 @@ public class Main {
 				System.out.println(e);
 				e.printStackTrace();
 			}
-		} else if (isURLForAPublication(URL)) {
-			// check if the given URL is already in database
-			String sql = "select * from Records where URL = '" + URL + "'" + " and trackID = "+currentTrack.trackID;
-			try {
-				ResultSet rs = db.runSql(sql);
-				if (!rs.next()) {
-					// store the URL to database to avoid parsing again
-					Document doc = null;
-					doc = Jsoup
-							.connect(URL)
-							.timeout(0)
-							.userAgent(
-									"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36")
-									.get();
-					extractPublicationInformation(URL, doc,publication);
-					savePublication(publication,URL);
-					System.out.println(publication);
-				}else{
-					// Already present, only update the publication year
-					// FIX for storing the year of a publication ( new field in already populated DB )
-					System.out.println("Updating:" + URL + " Year:" + publication.getYear());
-					db.updatePublicationYear(publication.getYear(), currentTrack.trackID, URL);
-				}
-			} catch (Exception e) {
-				// TODO : Log file
-				System.out.println(e);
-				e.printStackTrace();
-			}
-		}else{
-			System.out.println("Skipping************");
-			System.out.println(URL);
-		}
+		} 
 	}
 
 	public static boolean isURLForAPublication(String URL){
@@ -163,12 +138,14 @@ public class Main {
 			publication.setContentType(eleContentType.get(0).text().trim());
 		}else{
 			// Save conference name in contentType field if it is null and this is a conference proceeding
-			if(publication.getJournal().contains("ASME Proceedings")){
-				Element confElements = doc.getElementById("scm6MainContent_bListConf");
-				if(confElements!=null){
-					Elements element = confElements.getAllElements();
-					if(element.size()>1){
-						publication.setContentType(element.get(1).text());
+			if(publication.getJournal()!=null){
+				if(publication.getJournal().contains("ASME Proceedings")){
+					Element confElements = doc.getElementById("scm6MainContent_bListConf");
+					if(confElements!=null){
+						Elements element = confElements.getAllElements();
+						if(element.size()>1){
+							publication.setContentType(element.get(1).text());
+						}
 					}
 				}
 			}
@@ -281,7 +258,6 @@ public class Main {
 		}
 		List<Author> authors = new ArrayList<>();
 		publication.setAuthors(authors);
-
 		Elements all = doc.select("#scm6MainContent_lblAuthors");
 		Elements els = all.first().children();
 		String correspondingAuthor = null ;	

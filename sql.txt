@@ -1,0 +1,135 @@
+
+
+CREATE TABLE IF NOT EXISTS Publications 
+(
+	trackID INT NOT NULL,
+	paperID INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	title VARCHAR(250) NOT NULL,
+	abstract VARCHAR(5000),
+	journal VARCHAR(200),
+	contentType VARCHAR(200),
+	receivedDate DATE,
+	revisionDate DATE,
+	topicTags VARCHAR(250),
+	URL VARCHAR(200) NOT NULL UNIQUE,
+	publisher VARCHAR(50),
+	FOREIGN KEY (trackID) REFERENCES Tracks(trackID)
+	ON DELETE CASCADE
+)
+
+insert into Publications (trackID,title,abstract,journal,URL,contentType,topicTags,publisher,receivedDate,revisedDate) values ()
+
+CREATE TABLE IF NOT EXISTS Tracks
+(
+	trackID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	trackName VARCHAR(100) NOT NULL UNIQUE
+)	
+
+insert into tracks (trackName) values ("Aerospace Industry"),("Applied Mechanics"),("Automotive Systems"),("Biomechanical Engineering"),("Boilers & Pressure Vessels"),("Building & Construction"),("Computer-Aided Design (CAD)"),("Computers & Information in Engineering"),("Conventional Power & Fuels"),("Defense Industry"),("Design Engineering"),("Dynamic Systems & Control"),("Electronic & Photonic Packaging"),("Energy"),("Energy Technology Management"),("Environmental Engineering"),("Fluids Engineering"),("Heat Transfer"),("Internal Combustion Engines"),("Manufacturing & Processing"),("Nanotechnology"),("Noise Control & Acoustics"),("Nondestructive Evaluation"),("Nuclear Engineering"),("Numerical Analysis"),("Ocean, Offshore & Arctic Engineering"),("Pipeline & Piping Systems"),("Renewable Energy"),("Robotics & Mechatronics"),("Transportation"),("Tribology");
+
+CREATE TABLE IF NOT EXISTS Authors
+(
+	paperID INTEGER NOT NULL,
+	authorID INTEGER NOT NULL,
+	authorOrder INT NOT NULL,	
+	FOREIGN KEY (paperID) REFERENCES Publications(paperID)
+	ON DELETE CASCADE,
+	FOREIGN KEY (authorID) REFERENCES AuthorInfo(authorID)
+	ON DELETE CASCADE,
+	PRIMARY KEY (paperID, authorID)
+)
+
+CREATE TABLE IF NOT EXISTS AuthorInfo
+(
+	authorID INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	firstName VARCHAR(35) NOT NULL,
+	middleName VARCHAR(35),
+	lastName VARCHAR(35),
+	gender CHAR(1),
+	email VARCHAR(150) UNIQUE,
+	affiliation VARCHAR(300),
+	URL VARCHAR(350)
+)
+
+CREATE TABLE PaperTracks
+(
+	paperID INTEGER NOT NULL,
+	trackID INT NOT NULL,
+	FOREIGN KEY (paperID) REFERENCES publications(paperID)
+	ON DELETE CASCADE,
+	FOREIGN KEY (trackID) REFERENCES tracks(trackID)
+	ON DELETE CASCADE,
+	PRIMARY KEY (paperID, trackID)
+)
+
+create table records
+(
+	URL VARCHAR(200),
+	trackID INT NOT NULL,
+	FOREIGN KEY (URL) REFERENCES publications(URL)
+	ON DELETE CASCADE,
+	FOREIGN KEY (trackID) REFERENCES tracks(trackID)
+	ON DELETE CASCADE,
+	PRIMARY KEY (URL,trackID)
+);
+
+CREATE TABLE Record
+(
+RecordID INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+URL VARCHAR(200) NOT NULL UNIQUE
+)
+
+select publications.paperID, title,authors.authorID, authorinfo.firstname,authorinfo.lastname from publications, authors, authorinfo where authors.paperID = publications.paperID and authorinfo.authorID=authors.authorID order by publications.paperID limit 10;
+Main query:
+ 
+select count(*),papertracks.trackID, authorInfo.gender from publications, authorInfo, authors,papertracks where paperTracks.paperID=publications.paperID and publications.paperID = authors.paperID and authors.authorID = authorInfo.authorID group by authorInfo.gender,  publications.trackID;
+
+
+clean up all papers with authors with first name = 1
+
+
+// Fill records
+
+delimiter $$
+create procedure fillrecords()
+begin
+declare finished integer;
+declare ur varchar(200);
+declare track integer;
+declare mycursor cursor for select URL,trackID from publications;
+declare continue handler
+for not found set finished =1;
+open mycursor;
+myloop: loop
+fetch mycursor into ur,track;
+insert into records(URL,trackID) values(ur,track);
+if finished = 1 then
+leave myloop;
+end if;
+end loop myloop;
+close mycursor;
+end $$
+
+
+
+delimiter $$
+create procedure fillpapertracks()
+begin
+declare finished integer default 0;
+declare paper integer default 0;
+declare track integer default 0;
+declare mycursor cursor for select paperID,trackID from publications;
+declare continue handler
+for not found set finished =1;
+open mycursor;
+myloop: loop
+fetch mycursor into paper,track;
+insert into paperTracks(paperID,trackID) values(paper,track);
+if finished = 1 then
+leave myloop;
+end if;
+end loop myloop;
+close mycursor;
+end $$
+
+delimiter ;

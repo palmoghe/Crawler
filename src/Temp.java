@@ -15,14 +15,20 @@ public class Temp {
 
 		Document doc = null;
 		try {
-			doc = Jsoup
+			String body = Jsoup
 					.connect(
-							"http://asmedigitalcollection.asme.org/proceeding.aspx?articleid=1908017")
+							"http://asmedigitalcollection.asme.org/collection.aspx?categoryID=9208&pageA=25&contentType=0")
 					.userAgent(
 							"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36")
-					.get();
+					.execute().body();
 			// doc =
 			// Jsoup.connect("http://proceedings.asmedigitalcollection.asme.org/proceeding.aspx?articleid=1775911").get();
+			
+			System.out.println(body);
+//			Elements select = b.select("[style=display:none;]");
+//			System.out.println(select);
+//			System.out.println("After removal:"+doc.toString());
+			
 			Elements eleTitle = doc.getElementsByClass("aTitle");
 			Elements eleContentType = doc.getElementsByClass("contentType");
 			Elements eleAbstract = doc.getElementsByClass("Abstract");
@@ -57,7 +63,7 @@ public class Temp {
 			// }
 			// }
 
-			parseDisclosuresForAuthorDetails(doc);
+//			parseDisclosuresForAuthorDetails(doc);
 
 		} catch (Exception e) {
 			System.out.println(e);
