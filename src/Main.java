@@ -30,13 +30,11 @@ public class Main {
 		//		 db.runSql2("ALTER TABLE authorinfo AUTO_INCREMENT=1");
 
 		for(Track track:Track.values()){
-			if(track.trackID<12){
-				continue;
-			}
+			
 			currentTrack = track;
 			System.out.println("Track: "+currentTrack.title + " Cat: "+currentTrack.categoryID);
 			for(page=1;page<=currentTrack.lastPage;page++){
-				if(track.trackID==12 && page<245){
+				if(track.trackID<30 || (track.trackID==30 &&  page<90)){
 					continue;
 				}
 				System.out.println("PAGE: "+page);
@@ -206,7 +204,6 @@ public class Main {
 								author.getLastName(), author.getEmail(),
 								author.getAddress(),author.getAuthorURL());
 					}
-
 					// Insert data into Authors
 					db.insertIntoAuthors(existingPaperID, existingAuthorID,author.getOrder(),author.isCorresponding());
 				}

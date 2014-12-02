@@ -5,14 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 public class DB {
- 
+
 	public Connection conn = null;
- 
+
 	public DB() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -25,21 +26,31 @@ public class DB {
 			e.printStackTrace();
 		}
 	}
- 
+
 	public ResultSet runSql(String sql) throws SQLException {
 		Statement sta = conn.createStatement();
 		return sta.executeQuery(sql);
 	}
- 
+
 	public boolean runSql2(String sql) throws SQLException {
 		Statement sta = conn.createStatement();
 		return sta.execute(sql);
 	}
-	
+
 	public void updatePublicationYear(int year,String URL) throws SQLException{
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.UPDATE_PUB_YEAR);
 		sta.setInt(1, year);
 		sta.setString(2, URL);
+		sta.executeUpdate();
+	}
+
+	public void insertIntoGenderNamesor(int authorID, double scale,String gender) throws SQLException{
+		PreparedStatement sta = conn.prepareStatement(SQLQuery.INSERT_INTO_GENDER_NAMESOR);
+		sta.setInt(1, authorID);
+		DecimalFormat df = new DecimalFormat("####0.00");
+		System.out.println("Value:"+df.format(scale));
+		sta.setDouble(2, Double.valueOf(df.format(scale)));
+		sta.setString(3, gender);
 		sta.executeUpdate();
 	}
 	public int insertIntoPublications(int trackID,String title,String paperAbstract,String journal,String URL,String contentType,String topicTags,String publisher, java.util.Date receivedDate,java.util.Date revisionDate, int sitePage,int year) throws SQLException {
@@ -105,7 +116,7 @@ public class DB {
 		generatedKeys.next();
 		return generatedKeys.getInt(1);
 	}
-	
+
 	public Integer getAuthorID(Author author) throws SQLException{
 		PreparedStatement sta=null;
 		if(author.getEmail()!=null && !author.getEmail().isEmpty()){
@@ -127,7 +138,7 @@ public class DB {
 		}
 	}
 	public Integer getPaperID(String URL) throws SQLException{
-		
+
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.GET_PAPER_ID);
 		sta.setString(1, URL);
 		ResultSet resultSet = sta.executeQuery();
@@ -136,9 +147,9 @@ public class DB {
 			return resultSet.getInt("paperID");
 		}
 		return null;
-		
+
 	}
-	
+
 	public int insertIntoAuthors(int paperID,int authorID, int authorOrder, boolean isCorresponding) throws SQLException{
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.INSERT_INTO_AUTHORS);
 		sta.setInt(1, paperID);
@@ -151,7 +162,7 @@ public class DB {
 		}
 		return sta.executeUpdate();
 	}
-	
+
 	@Override
 	protected void finalize() throws Throwable {
 		if (conn != null || !conn.isClosed()) {
@@ -160,7 +171,6 @@ public class DB {
 	}
 
 	public List<String> getAuthorNames() throws SQLException{
-		
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.GET_AUTHOR_NAMES);
 		ResultSet rs = sta.executeQuery();
 		List<String> result= new ArrayList<>();
@@ -169,14 +179,50 @@ public class DB {
 		}
 		return result;
 	}
-	
+
+	public List<AuthorInfo> getAuthorInfo() throws SQLException{
+		PreparedStatement sta = conn.prepareStatement(SQLQuery.GET_AUTHOR_FULL_NAMES);
+		ResultSet rs = sta.executeQuery();
+		List<AuthorInfo> result= new ArrayList<>();
+		while(rs.next()){
+			result.add(new AuthorInfo(rs.getString(1), rs.getString(2)));
+		}
+		return result;
+	}
+	public AuthorInfo getAuthorInfo(String name) throws SQLException{
+		PreparedStatement sta = conn.prepareStatement(SQLQuery.GET_GENDER_MAPPING);
+		sta.setString(1, name);
+		ResultSet rs = sta.executeQuery();
+		while(rs.next()){
+			AuthorInfo info = new AuthorInfo();
+			info.setFirstName(rs.getString(1));
+			info.setGender(rs.getString(2));
+			info.setScale(rs.getDouble(3));
+			return info;
+		}
+		return null;
+	}
+	public int insertIntoMapping(String name, String gender, Double scale) throws SQLException {
+		PreparedStatement sta = conn.prepareStatement(SQLQuery.INSERT_INTO_MAPPING);
+		sta.setString(1, name);
+		sta.setString(2, gender);
+		sta.setDouble(3, scale);
+		return sta.executeUpdate();
+	}
+	public int updateMapping(String name, String gender, Double scale) throws SQLException {
+		PreparedStatement sta = conn.prepareStatement(SQLQuery.UPDATE_MAPPING);
+		sta.setString(1, gender);
+		sta.setDouble(2, scale);
+		sta.setString(3, name);
+		return sta.executeUpdate();
+	}
 	public int insertIntoPaperTracks(Integer paperID, int trackID) throws SQLException {
 		PreparedStatement sta = conn.prepareStatement(SQLQuery.INSERT_INTO_PAPER_TRACKS);
 		sta.setInt(1, paperID);
 		sta.setInt(2, trackID);
 		return sta.executeUpdate();
 	}
-	
+
 	public int insertIntoRecords(String URL, int trackID) throws SQLException{
 		String sql = "INSERT INTO  `pubdatanew`.`Records` "
 				+ "(`URL`,`trackID`) VALUES " + "(?,?);";

@@ -51,6 +51,31 @@ CREATE TABLE IF NOT EXISTS AuthorInfo
 	URL VARCHAR(350)
 )
 
+CREATE TABLE IF NOT EXISTS Mapping
+(
+	name VARCHAR(50) PRIMARY KEY,
+	gender CHAR(1)
+)
+
+CREATE TABLE IF NOT EXISTS GenderCMapping
+(
+	authorID INTEGER NOT NULL PRIMARY KEY,
+	scale DECIMAL(2,2),
+	gender CHAR(1),
+	FOREIGN KEY (authorID) REFERENCES AuthorInfo(authorID)
+	ON DELETE CASCADE
+
+)
+
+CREATE TABLE IF NOT EXISTS GenderNamesor
+(
+	authorID INTEGER NOT NULL PRIMARY KEY,
+	scale DECIMAL(2,2),
+	gender CHAR(1),
+	FOREIGN KEY (authorID) REFERENCES AuthorInfo(authorID)
+	ON DELETE CASCADE
+)
+
 CREATE TABLE PaperTracks
 (
 	paperID INTEGER NOT NULL,
@@ -133,3 +158,15 @@ close mycursor;
 end $$
 
 delimiter ;
+
+SELECT distinct(firstname) from authorinfo
+INTO OUTFILE 'C:/Users/Pallavi/Downloads/Courses/EECS 599/names.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+
+SELECT firstname,lastname from authorinfo
+INTO OUTFILE 'C:/Users/Pallavi/Downloads/Courses/EECS 599/full_names.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'

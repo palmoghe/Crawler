@@ -2,22 +2,27 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="sources"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/jsoup-1.8.1.jar" sourcepath="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/jsoup-1.8.1-sources.jar">
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/jsoup-1.8.1.jar" sourcepath="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/jsoup-1.8.1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/C:/Users/Pallavi/Downloads/Courses/EECS%20599/libraries/jsoup-1.8.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/mysql-connector-java-5.1.18-bin.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/json-20140107.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/unirest-java-1.3.20.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/commons-logging-1.1.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/fluent-hc-4.3.6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpclient-4.3.6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpclient-cache-4.3.6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpcore-4.3.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpmime-4.3.6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcore-nio-4.1-beta2.jar/httpcore-nio-4.1-beta2.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/mysql-connector-java-5.1.18-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/unirest-java-1.3.20.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/commons-codec-1.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/commons-logging-1.1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/fluent-hc-4.3.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpclient-4.3.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpclient-cache-4.3.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpcore-4.3.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcomponenets/httpcomponents-client-4.3.6/lib/httpmime-4.3.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/httpcore-nio-4.1-beta2.jar/httpcore-nio-4.1-beta2.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/json/json-lib-2.4-jdk15.jar" sourcepath="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/json/json-lib-2.4-jdk15-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Pallavi/Downloads/Courses/EECS%20599/libraries/json/json-lib-2.4-jdk15-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Pallavi/Downloads/Courses/EECS 599/libraries/json/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
