@@ -1,4 +1,8 @@
-
+/**
+ * Author specific information
+ * @author Pallavi
+ *
+ */
 public class AuthorInfo {
 
 	private int authorID;

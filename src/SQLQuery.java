@@ -1,4 +1,8 @@
-
+/**
+ * All SQL queries
+ * @author Pallavi
+ *
+ */
 public class SQLQuery {
 	public static final String INSERT_INTO_PUBLICATIONS= "insert into Publications (trackID,title,abstract,journal,URL,contentType,topicTags,publisher,receivedDate,revisionDate,sitePage,year) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 	public static final String INSERT_INTO_AUTHOR_INFO= "insert into AuthorInfo (firstName,middleName,lastName,email,affiliation,url) values (?,?,?,?,?,?)";

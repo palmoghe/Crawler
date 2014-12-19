@@ -9,7 +9,11 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * All DB interactions
+ * @author Pallavi
+ *
+ */
 public class DB {
 
 	public Connection conn = null;

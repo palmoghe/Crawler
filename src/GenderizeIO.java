@@ -16,7 +16,11 @@ import java.util.List;
 
 import org.json.simple.parser.ParseException;
 
-
+/**
+ * Query request and reponse parsers for Genderize
+ * @author Pallavi
+ *
+ */
 public class GenderizeIO {
 
 	private static DB db = new DB();

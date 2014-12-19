@@ -1,4 +1,5 @@
 
+Queries used to set the database:
 
 CREATE TABLE IF NOT EXISTS Publications 
 (
@@ -76,6 +77,12 @@ CREATE TABLE IF NOT EXISTS GenderNamesor
 	ON DELETE CASCADE
 )
 
+
+ file, with columns for name, gender, institution, paper title, 
+ conference, tracks that the paper belongs to, and any other information you have on the authors/papers.
+
+select authorinfo.firstname, authorinfo.lastname, authorinfo.email, authorinfo.URL, authorinfo.affiliation, mapping.gender, authors.paperid, publications.title, tracks.trackname, publications.year from authorinfo,mapping,authors,publications,tracks where authorinfo.firstname = mapping.name and mapping.gender is not null and mapping.scale > 0.4 and authorinfo.authorid=authors.authorid and publications.paperid = authors.paperid and tracks.trackid = publications.trackid order by authorinfo.firstname;
+
 CREATE TABLE PaperTracks
 (
 	paperID INTEGER NOT NULL,
@@ -104,13 +111,8 @@ RecordID INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
 URL VARCHAR(200) NOT NULL UNIQUE
 )
 
-select publications.paperID, title,authors.authorID, authorinfo.firstname,authorinfo.lastname from publications, authors, authorinfo where authors.paperID = publications.paperID and authorinfo.authorID=authors.authorID order by publications.paperID limit 10;
-Main query:
- 
-select count(*),papertracks.trackID, authorInfo.gender from publications, authorInfo, authors,papertracks where paperTracks.paperID=publications.paperID and publications.paperID = authors.paperID and authors.authorID = authorInfo.authorID group by authorInfo.gender,  publications.trackID;
+select publications.paperID, publications.topicTags, publications.journal, publications.abstract, title,authors.authorID, authorinfo.firstname,authorinfo.lastname from publications, authors, authorinfo where authors.paperID = publications.paperID and authorinfo.authorID=authors.authorID order by publications.paperID limit 10;
 
-
-clean up all papers with authors with first name = 1
 
 
 // Fill records
@@ -160,13 +162,125 @@ end $$
 delimiter ;
 
 SELECT distinct(firstname) from authorinfo
-INTO OUTFILE 'C:/Users/Pallavi/Downloads/Courses/EECS 599/names.csv'
+INTO OUTFILE 'names.csv'
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 
+
+SELECT authorinfo.firstname, authorinfo.lastname, mapping.gender, authorinfo.email, authorinfo.URL, authorinfo.affiliation, publications.title, tracks.trackname, publications.year, publications.journal, publications.abstract, publications.topicTags, publications.URL from authorinfo,mapping,authors,publications,tracks where authorinfo.firstname = mapping.name and mapping.gender is not null and mapping.scale > 0.4 and authorinfo.authorid=authors.authorid and publications.paperid = authors.paperid and tracks.trackid = publications.trackid order by authorinfo.firstname 
+INTO OUTFILE 'pub_data.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+
+SELECT authorinfo.firstname, authorinfo.lastname, mapping.gender, authorinfo.URL, authorinfo.affiliation from authorinfo,mapping where authorinfo.firstname = mapping.name and mapping.scale >0.4 and mapping.gender is not null limit 100
+INTO OUTFILE 'random_annotation.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+
+// To mark all names with initials gender = null
+ select name,gender from mapping where name REGEXP '^[a-zA-Z][/.]' =1 and gender is not null;
+
+// All probabilities
+Total valid male authors = 198405 
+p(male) = 0.821311
+Total valid female authors = 43166
+p(female) = 0.178688
+Total valid authors = 241571
+// Probability > 0.4
+
+SELECT COUNT(*) FROM authorinfo WHERE (SELECT gender FROM mapping WHERE NAME LIKE firstname) AND firstname REGEXP '^[a-zA-Z][/.]' =0;
+
+select count(*) from publications where trackid=1 and paperid in (select paperid from authors where authorid in (select authorid from authorinfo where firstname in (select name from mapping where gender = 'F' and scale > 0.4)));
+^ Give us no. of publications in track 1 which had at least 1 female author.
+622
+
+select count(*) from authorinfo where authorid in (select authorid from authors where paperid in ( select paperid from publications where trackid = 1)) and (select gender from mapping where name like authorinfo.firstname)='F'; 
+^ No. of female authors who wrote at least 1 paper in track 1
+788
+
+select count(*) from authors where authorid in (select authorid from authorinfo where firstname in (select name from mapping where gender ='F' and scale>0.4));
+^ Contributions by female authors
+44221
+
+Total Contributions by male authors: 204660
+
+select name from mapping where gender is null
+INTO OUTFILE 'C:/Users/Pallavi/Downloads/Courses/EECS 599/unlabelled_names.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+
+ANALYTICS:
+************
+
+select count(distinct(authorid)) from authors where authorid in (select authorid from authorinfo where firstname in (select name from mapping where gender ='M' and scale>0.4)) and paperid in (select paperid from publications where trackid=1);
+
+Total Contributions by male authors in track 1 
+Male = 4086
+Female = 800
+
+**************************************
+Authors:
+select count(*) from authorinfo where firstname in ( select name from mapping where gender is not null);
+Total:241312
+Females:43079
+Males:198233
+P(F) = 0.17851
+Ex. Track 1:
+Total authors = 4837
+Female = 788
+Male = 4049
+
+
+***************************************
 SELECT firstname,lastname from authorinfo
 INTO OUTFILE 'C:/Users/Pallavi/Downloads/Courses/EECS 599/full_names.csv'
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
+**************************************
+Women authors by year 
+SELECT YEAR, COUNT(DISTINCT(authorid)) FROM AUTHORS,publications WHERE publications.paperid = authors.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'F' AND scale>0.39)) AND YEAR>1993 GROUP BY YEAR;
+SELECT YEAR, COUNT(DISTINCT(authorid)) FROM AUTHORS,publications WHERE publications.paperid = authors.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'F' AND scale>0.39));
+**************************************
+Men authors by year
+SELECT YEAR, COUNT(DISTINCT(authorid)) FROM AUTHORS,publications WHERE publications.paperid = authors.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'M' AND scale>0.39)) AND YEAR>1993 GROUP BY YEAR;
+
+**************************************
+Publications by year by women ( No. of publications having at least 1 female author)
+SELECT YEAR,COUNT(publications.paperid) FROM publications,AUTHORS WHERE publications.paperid = authors.paperid AND ( SELECT COUNT(authorid) FROM AUTHORS WHERE authors.paperid = publications.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'F' AND scale>0.39))) >= 1 GROUP BY YEAR
+SELECT YEAR, COUNT(authorid) FROM AUTHORS,publications WHERE publications.paperid = authors.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'F' AND scale>0.39)) AND YEAR>1993 GROUP BY YEAR;
+**************************************
+Publications by year by men ( No. of publications having at least 1 male author)
+SELECT YEAR,COUNT(publications.paperid) FROM publications,AUTHORS WHERE publications.paperid = authors.paperid AND ( SELECT COUNT(authorid) FROM AUTHORS WHERE authors.paperid = publications.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'M' AND scale>0.39))) >= 1 GROUP BY YEAR
+SELECT YEAR, COUNT(authorid) FROM AUTHORS,publications WHERE publications.paperid = authors.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'M' AND scale>0.39)) AND YEAR>1993 GROUP BY YEAR;
+**************************************
+Percentage of women authors by year
+
+**************************************
+Percentage of male authors by year
+SELECT YEAR, COUNT(authorid),trackname FROM AUTHORS,publications,tracks WHERE publications.trackid=tracks.trackid and publications.paperid = authors.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'F' AND scale>0.39)) AND YEAR>1993 and trackid=1 GROUP BY YEAR;
+
+**************************************
+Publications by females by year by categories
+
+**************************************
+Publications by men in ME topics by year
+select count(paperid),tracks.trackname,year from authors,publications,mapping,tracks where publications.paperid = authors.paperid and authorid in (select authorid from authorinfo where firstname in (select name from mapping where gender = 'M' and scale>0.39)) and publications.trackid = tracks.trackid group by year,trackname;
+
+***************************************
+Publications by category over time by females
+SELECT COUNT((authorid)),trackname FROM AUTHORS,publications,tracks WHERE publications.paperid = authors.paperid AND authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'F' AND scale>0.39)) AND tracks.trackid = publications.trackid GROUP BY trackname;
+**********************
+Top authors:
+select authorid,count(*)"count" from authors group by authorid order by count DESC limit 10;
+
+**********************************
+Active years
+CREATE VIEW my_view2 AS SELECT MAX(YEAR)"max", MIN(YEAR)"min" FROM mapping,publications,AUTHORS,authorinfo WHERE publications.paperid = authors.paperid AND authors.authorid = authorinfo.authorid AND authorinfo.firstname = mapping.name AND authors.authorid IN (SELECT authorid FROM authorinfo WHERE firstname IN (SELECT NAME FROM mapping WHERE gender = 'F' AND scale>0.39)) AND YEAR IS NOT NULL GROUP BY authorinfo.authorid;
+SELECT AVG(my_view.`max` - my_view.`min` + 1) FROM my_view;
+
+

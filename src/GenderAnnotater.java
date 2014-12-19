@@ -118,13 +118,6 @@ public class GenderAnnotater {
 			System.out.println("\nSending 'GET' request to URL : " + requestURL);
 			System.out.println("Response Code : " + responseCode);
 		}
-		//		bw.close();
-
 		return null;
-	}
-
-	private static void parseJSONResponse(String response){
-
-		CustomJSONParser parser = new CustomJSONParser();
 	}
 }

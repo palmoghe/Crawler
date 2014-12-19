@@ -2,7 +2,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-
+/**
+ * JSON parser for gender APIs
+ * @author Pallavi
+ *
+ */
 
 public class CustomJSONParser {
 	

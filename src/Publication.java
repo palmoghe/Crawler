@@ -2,7 +2,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 
+ * Class for per publication data
  * @author Pallavi
  *
  */
